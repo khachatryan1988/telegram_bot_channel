@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
+
+# SQLite
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+db.sqlite3
+
+# Logs
+*.log
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Tests / cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporary files
+*.tmp
+*.bak
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Migrations (если появятся)
+migrations/

@@ -1,0 +1,12 @@
+﻿{
+  "project": "domus_giveaway_bot",
+  "agents_file": "AGENTS.md",
+  "plans_file": "PLANS.md",
+  "requires_docker": false,
+  "python_venv": ".venv",
+  "env_file": ".env",
+  "working_type": "python_bot"
+}
+
+
+
