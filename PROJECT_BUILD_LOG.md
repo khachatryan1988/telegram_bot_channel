@@ -9,7 +9,7 @@ This document records the practical implementation steps that were completed whi
 The project was built as an MVP Telegram giveaway bot with the following constraints:
 
 - one bot
-- one Telegram channel: `@domus_stores_test_1`
+- one Telegram channel: `@domus_stores`
 - Armenian-only user-facing UI
 - Python + `aiogram` + SQLite
 - no FSM unless the flow genuinely requires multi-step state

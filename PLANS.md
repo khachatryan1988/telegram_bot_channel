@@ -1,7 +1,7 @@
 # PLANS.md
 
 ## Current objective
-Ship a working MVP Telegram giveaway bot for `@domus_stores_test_1`.
+Ship a working MVP Telegram giveaway bot for `@domus_stores`.
 
 ## Product summary
 Users join the bot, subscribe to the Domus channel, verify participation, receive a personal referral link, and become eligible after 3 verified referrals. Admin manually selects a winner. The winner must respond within 48 hours or a redraw is performed.
@@ -43,7 +43,7 @@ A new user can enter the bot and see the participation flow.
 
 ## Phase 3 — Subscription verification
 ### Goal
-Verify that the user is subscribed to `@domus_stores_test_1`.
+Verify that the user is subscribed to `@domus_stores`.
 
 ### Tasks
 - add channel button

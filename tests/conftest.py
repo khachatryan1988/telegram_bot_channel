@@ -16,7 +16,7 @@ def settings(tmp_path: Path) -> Settings:
     db_path = tmp_path / "test.sqlite3"
     test_settings = Settings(
         bot_token="test-token",
-        channel_username="@domus_stores_test_1_test_1_test_1_test",
+        channel_username="@domus_stores_test_1_test_1_test",
         admin_ids=[1],
         referral_target=3,
         winner_response_hours=48,

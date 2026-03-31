@@ -1,6 +1,6 @@
 # Domus Giveaway Bot MVP
 
-Минимальный Telegram giveaway bot для канала `@domus_stores_test_1` на `aiogram` и `SQLite`.
+Минимальный Telegram giveaway bot для канала `@domus_stores` на `aiogram` и `SQLite`.
 
 ## Что умеет MVP
 - регистрация участника через `/start` и deep link `ref_<code>`
@@ -39,7 +39,7 @@ cp .env .env
 Заполните `.env`:
 ```dotenv
 BOT_TOKEN=your_token_here
-CHANNEL_USERNAME=@domus_stores_test_1
+CHANNEL_USERNAME=@domus_stores
 ADMIN_IDS=123456789
 REFERRAL_TARGET=3
 WINNER_RESPONSE_HOURS=48

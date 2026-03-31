@@ -8,7 +8,7 @@ Build a minimal Telegram giveaway bot for the Domus channel with subscription ve
 
 ## Core product scope
 - One Telegram bot
-- One Telegram channel: `@domus_stores_test_1`
+- One Telegram channel: `@domus_stores`
 - Armenian-only UI
 - Manual admin draw flow
 - Referral target: 3 verified invites
@@ -36,7 +36,7 @@ Build a minimal Telegram giveaway bot for the Domus channel with subscription ve
 
 ## Functional requirements
 - `/start` handles deep links in the format `ref_<code>`
-- user can verify subscription to `@domus_stores_test_1`
+- user can verify subscription to `@domus_stores`
 - bot generates and shows a personal referral link
 - progress is shown as `0/3`, `1/3`, `2/3`, `3/3`
 - user becomes eligible only after 3 verified referrals
