@@ -19,6 +19,7 @@ from app.keyboards.main import winner_response_keyboard
 from app.repositories.users import get_tg_id_by_user_id
 from app.services.verification import is_user_subscribed
 from app.utils.time import add_hours_iso, is_past_due, utcnow_iso
+from app.db.connection import get_connection
 
 
 def _pick_candidate(candidates: list[int]) -> list[int]:
@@ -80,11 +81,24 @@ async def draw_winner(bot: Bot, settings: Settings) -> Optional[dict]:
             set_expired(settings, user_id, True)
             update_draw_status(settings, draw_id, "expired")
             continue
+        conn = get_connection(settings)
+        row = conn.execute(
+       "SELECT username, first_name, last_name FROM users WHERE id = ?",
+    (user_id,),
+        ).fetchone()
+        conn.close()
+
+        username = row["username"] if row else None
+        first_name = row["first_name"] if row else None
+        last_name = row["last_name"] if row else None
 
         result = {
             "draw_id": draw_id,
             "winner_id": winner_id,
             "user_id": user_id,
+            "username": username,
+            "first_name": first_name,
+            "last_name": last_name,
             "deadline_at": deadline_at,
         }
         log_action(
