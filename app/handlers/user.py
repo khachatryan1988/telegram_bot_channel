@@ -16,7 +16,7 @@ from texts import (
     WINNER_RESPONSE_EXPIRED,
     WINNER_RESPONSE_INVALID,
 )
-from app.keyboards.main import main_menu_keyboard, participate_keyboard
+from app.keyboards.main import main_menu_keyboard, participate_keyboard, referral_share_keyboard
 from app.repositories.users import create_user, get_user_id_by_tg_id, set_start_param
 from app.repositories.referrals import get_referrer_id, set_referrer
 from app.repositories.status import ensure_status_row, set_verified
@@ -134,10 +134,15 @@ async def check_participation_handler(query: CallbackQuery) -> None:
     text = (
         f"{CHECK_OK}\n\n"
         f"{REF_LINK_TITLE}\n{ref_link}\n\n"
+        f"📤 Կիսվիր ընկերների հետ և հավաքիր 3 հրավեր 🎯\n\n"
         f"{PROGRESS_TITLE} {progress}\n\n"
         f"{MAIN_MENU}"
     )
-    await query.message.answer(text, reply_markup=main_menu_keyboard())
+
+    await query.message.answer(
+        text,
+        reply_markup=referral_share_keyboard(ref_link)
+    )
     await query.answer()
 
 

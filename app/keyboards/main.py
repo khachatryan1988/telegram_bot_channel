@@ -43,3 +43,17 @@ def winner_response_keyboard() -> InlineKeyboardMarkup:
             ]
         ]
     )
+
+
+# 🔥 НОВАЯ КНОПКА ДЛЯ РЕФЕРАЛКИ
+def referral_share_keyboard(ref_link: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="📤 Կիսվել ընկերների հետ",
+                    url=f"https://t.me/share/url?url={ref_link}&text=Միացիր Domus խաղարկությանը 🎁",
+                )
+            ]
+        ]
+    )
