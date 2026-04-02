@@ -1,4 +1,6 @@
-﻿from aiogram.types import (
+﻿from urllib.parse import quote
+
+from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     KeyboardButton,
@@ -45,14 +47,17 @@ def winner_response_keyboard() -> InlineKeyboardMarkup:
     )
 
 
-# 🔥 НОВАЯ КНОПКА ДЛЯ РЕФЕРАЛКИ
 def referral_share_keyboard(ref_link: str) -> InlineKeyboardMarkup:
+    share_text = "Միացի՛ր Domus-ի խաղարկությանը 🎁\nՄասնակցի՛ր և շահի՛ր նվերներ։"
+    encoded_url = quote(ref_link, safe="")
+    encoded_text = quote(share_text, safe="")
+
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
                     text="📤 Կիսվել ընկերների հետ",
-                    url=f"https://t.me/share/url?url={ref_link}&text=Միացիր Domus խաղարկությանը 🎁",
+                    url=f"https://t.me/share/url?url={encoded_url}&text={encoded_text}",
                 )
             ]
         ]

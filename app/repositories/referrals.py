@@ -8,6 +8,7 @@ def set_referrer(
         settings: Settings,
         referrer_user_id: int,
         invited_user_id: int,
+        is_countable: bool = False,
 ) -> bool:
     if referrer_user_id == invited_user_id:
         return False
@@ -16,11 +17,11 @@ def set_referrer(
     try:
         cursor = conn.execute(
             """
-            INSERT INTO referrals (referrer_user_id, invited_user_id)
-            VALUES (?, ?)
+            INSERT INTO referrals (referrer_user_id, invited_user_id, is_countable)
+            VALUES (?, ?, ?)
             ON CONFLICT(invited_user_id) DO NOTHING
             """,
-            (referrer_user_id, invited_user_id),
+            (referrer_user_id, invited_user_id, 1 if is_countable else 0),
         )
         conn.commit()
         return cursor.rowcount > 0
@@ -48,7 +49,9 @@ def get_verified_referral_count(settings: Settings, referrer_user_id: int) -> in
             SELECT COUNT(*) AS cnt
             FROM referrals r
             JOIN participant_status ps ON ps.user_id = r.invited_user_id
-            WHERE r.referrer_user_id = ? AND ps.is_verified = 1
+            WHERE r.referrer_user_id = ?
+              AND r.is_countable = 1
+              AND ps.is_verified = 1
             """,
             (referrer_user_id,),
         ).fetchone()
@@ -75,7 +78,8 @@ def get_all_referrals(settings: Settings) -> list[dict]:
                 iu.first_name AS invited_first_name,
                 iu.last_name AS invited_last_name,
 
-                COALESCE(ps.is_verified, 0) AS is_verified
+                COALESCE(ps.is_verified, 0) AS is_verified,
+                COALESCE(r.is_countable, 0) AS is_countable
             FROM referrals r
             LEFT JOIN users ru ON ru.id = r.referrer_user_id
             LEFT JOIN users iu ON iu.id = r.invited_user_id
@@ -106,7 +110,8 @@ def get_referrals_by_referrer_tg_id(settings: Settings, referrer_tg_id: int) -> 
                 iu.first_name AS invited_first_name,
                 iu.last_name AS invited_last_name,
 
-                COALESCE(ps.is_verified, 0) AS is_verified
+                COALESCE(ps.is_verified, 0) AS is_verified,
+                COALESCE(r.is_countable, 0) AS is_countable
             FROM referrals r
             LEFT JOIN users ru ON ru.id = r.referrer_user_id
             LEFT JOIN users iu ON iu.id = r.invited_user_id
@@ -139,7 +144,8 @@ def get_inviter_by_invited_tg_id(settings: Settings, invited_tg_id: int) -> Opti
                 iu.first_name AS invited_first_name,
                 iu.last_name AS invited_last_name,
 
-                COALESCE(ps.is_verified, 0) AS is_verified
+                COALESCE(ps.is_verified, 0) AS is_verified,
+                COALESCE(r.is_countable, 0) AS is_countable
             FROM referrals r
             LEFT JOIN users ru ON ru.id = r.referrer_user_id
             LEFT JOIN users iu ON iu.id = r.invited_user_id

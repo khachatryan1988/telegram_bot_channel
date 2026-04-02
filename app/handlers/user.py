@@ -16,7 +16,11 @@ from texts import (
     WINNER_RESPONSE_EXPIRED,
     WINNER_RESPONSE_INVALID,
 )
-from app.keyboards.main import main_menu_keyboard, participate_keyboard, referral_share_keyboard
+from app.keyboards.main import (
+    main_menu_keyboard,
+    participate_keyboard,
+    referral_share_keyboard,
+)
 from app.repositories.users import create_user, get_user_id_by_tg_id, set_start_param
 from app.repositories.referrals import get_referrer_id, set_referrer
 from app.repositories.status import ensure_status_row, set_verified
@@ -72,9 +76,18 @@ async def start_handler(message: Message, command: CommandObject) -> None:
     if is_new_user and start_param:
         referrer_tg_id = _extract_referrer_tg_id(start_param)
         if referrer_tg_id and referrer_tg_id != tg_user.id:
+            is_subscribed_already, _ = await is_user_subscribed(
+                message.bot, settings.channel_username, tg_user.id
+            )
+
             referrer_user_id = get_user_id_by_tg_id(settings, referrer_tg_id)
             if referrer_user_id is not None:
-                set_referrer(settings, referrer_user_id, user_id)
+                set_referrer(
+                    settings,
+                    referrer_user_id=referrer_user_id,
+                    invited_user_id=user_id,
+                    is_countable=not is_subscribed_already,
+                )
 
     await message.answer(WELCOME, reply_markup=main_menu_keyboard())
 
@@ -141,7 +154,7 @@ async def check_participation_handler(query: CallbackQuery) -> None:
 
     await query.message.answer(
         text,
-        reply_markup=referral_share_keyboard(ref_link)
+        reply_markup=referral_share_keyboard(ref_link),
     )
     await query.answer()
 
@@ -176,7 +189,3 @@ async def winner_confirm_response_handler(query: CallbackQuery) -> None:
     )
     await query.message.edit_reply_markup()
     await query.answer(WINNER_RESPONSE_CONFIRMED, show_alert=True)
-
-
-
-
