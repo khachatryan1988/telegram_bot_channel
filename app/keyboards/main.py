@@ -47,17 +47,26 @@ def winner_response_keyboard() -> InlineKeyboardMarkup:
     )
 
 
+from urllib.parse import quote
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+
+
 def referral_share_keyboard(ref_link: str) -> InlineKeyboardMarkup:
-    share_text = "Միացի՛ր Domus-ի խաղարկությանը 🎁\nՄասնակցի՛ր և շահի՛ր նվերներ։"
-    encoded_url = quote(ref_link, safe="")
-    encoded_text = quote(share_text, safe="")
+    share_message = (
+        "Միացի՛ր Domus-ի Telegram ալիքին 🎁\n"
+        "Հրավիրի՛ր ընկերներ և միացի՛ր արշավին։\n"
+        "Ակտիվ մասնակիցներից 1 օգտատեր կընտրվի պատահական սկզբունքով և կստանա նվեր։\n\n"
+        f"{ref_link}"
+    )
+
+    encoded_message = quote(share_message)
 
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
                     text="📤 Կիսվել ընկերների հետ",
-                    url=f"https://t.me/share/url?url={encoded_url}&text={encoded_text}",
+                    url=f"https://t.me/share/url?url={encoded_message}",
                 )
             ]
         ]
