@@ -47,6 +47,65 @@ def _build_ref_link(bot_username: str, tg_user_id: int) -> str:
     return f"https://t.me/{username}?start=ref_{tg_user_id}"
 
 
+async def _send_participation_result(target: Message | CallbackQuery, tg_user_id: int) -> None:
+    settings = get_settings()
+
+    if isinstance(target, CallbackQuery):
+        if target.from_user is None or target.message is None:
+            return
+        bot = target.bot
+        answer_message = target.message.answer
+    else:
+        if target.from_user is None:
+            return
+        bot = target.bot
+        answer_message = target.answer
+
+    user_id = get_user_id_by_tg_id(settings, tg_user_id)
+    if user_id is None:
+        return
+
+    is_subscribed, check_error = await is_user_subscribed(
+        bot, settings.channel_username, tg_user_id
+    )
+    if check_error is not None:
+        await answer_message(CHECK_ERROR, reply_markup=main_menu_keyboard())
+        return
+
+    set_verified(settings, user_id, is_subscribed)
+
+    if not is_subscribed:
+        await answer_message(CHECK_FAIL, reply_markup=main_menu_keyboard())
+        return
+
+    verified_count, target_count, _eligible = recalc_referral_progress(settings, user_id)
+
+    referrer_user_id = get_referrer_id(settings, user_id)
+    if referrer_user_id is not None:
+        recalc_referral_progress(settings, referrer_user_id)
+
+    bot_user = await bot.get_me()
+    ref_link = _build_ref_link(bot_user.username or "", tg_user_id)
+
+    text = (
+        f"{CHECK_OK}\n\n"
+        f"{REF_LINK_TITLE}\n{ref_link}\n\n"
+        f"📤 Կիսվիր ընկերների հետ և հավաքիր 3 հրավեր 🎯\n\n"
+        f"{PROGRESS_TITLE} {verified_count}/{target_count}\n\n"
+        f"{MAIN_MENU}"
+    )
+
+    await answer_message(
+        text,
+        reply_markup=referral_share_keyboard(ref_link),
+    )
+
+    await answer_message(
+        "Ընտրեք գործողությունը՝",
+        reply_markup=main_menu_keyboard(),
+    )
+
+
 @router.message(CommandStart())
 async def start_handler(message: Message, command: CommandObject) -> None:
     if message.from_user is None:
@@ -70,6 +129,7 @@ async def start_handler(message: Message, command: CommandObject) -> None:
         user_id = int(existing_user_id)
 
     start_param = command.args or ""
+
     if is_new_user and start_param:
         set_start_param(settings, user_id, start_param)
 
@@ -101,14 +161,15 @@ async def participate_handler(message: Message) -> None:
     )
 
 
-@router.callback_query(F.data == "check_participation")
-async def check_participation_handler(query: CallbackQuery) -> None:
-    if query.from_user is None:
+@router.message(F.text == "Ստուգել մասնակցությունս")
+async def check_participation_from_reply_button_handler(message: Message) -> None:
+    if message.from_user is None:
         return
 
     settings = get_settings()
-    tg_user = query.from_user
+    tg_user = message.from_user
     user_id = get_user_id_by_tg_id(settings, tg_user.id)
+
     if user_id is None:
         user_id = create_user(
             settings,
@@ -119,43 +180,29 @@ async def check_participation_handler(query: CallbackQuery) -> None:
         )
         ensure_status_row(settings, user_id)
 
-    is_subscribed, check_error = await is_user_subscribed(
-        query.bot, settings.channel_username, tg_user.id
-    )
-    if check_error is not None:
-        await query.message.answer(CHECK_ERROR, reply_markup=main_menu_keyboard())
-        await query.answer()
+    await _send_participation_result(message, tg_user.id)
+
+
+@router.callback_query(F.data == "check_participation")
+async def check_participation_handler(query: CallbackQuery) -> None:
+    if query.from_user is None:
         return
 
-    set_verified(settings, user_id, is_subscribed)
+    settings = get_settings()
+    tg_user = query.from_user
+    user_id = get_user_id_by_tg_id(settings, tg_user.id)
 
-    if not is_subscribed:
-        await query.message.answer(CHECK_FAIL, reply_markup=main_menu_keyboard())
-        await query.answer()
-        return
+    if user_id is None:
+        user_id = create_user(
+            settings,
+            tg_id=tg_user.id,
+            username=tg_user.username,
+            first_name=tg_user.first_name,
+            last_name=tg_user.last_name,
+        )
+        ensure_status_row(settings, user_id)
 
-    verified_count, target, _eligible = recalc_referral_progress(settings, user_id)
-    progress = f"{verified_count}/{target}"
-
-    referrer_user_id = get_referrer_id(settings, user_id)
-    if referrer_user_id is not None:
-        recalc_referral_progress(settings, referrer_user_id)
-
-    bot_user = await query.bot.get_me()
-    ref_link = _build_ref_link(bot_user.username or "", tg_user.id)
-
-    text = (
-        f"{CHECK_OK}\n\n"
-        f"{REF_LINK_TITLE}\n{ref_link}\n\n"
-        f"📤 Կիսվիր ընկերների հետ և հավաքիր 3 հրավեր 🎯\n\n"
-        f"{PROGRESS_TITLE} {progress}\n\n"
-        f"{MAIN_MENU}"
-    )
-
-    await query.message.answer(
-        text,
-        reply_markup=referral_share_keyboard(ref_link),
-    )
+    await _send_participation_result(query, tg_user.id)
     await query.answer()
 
 

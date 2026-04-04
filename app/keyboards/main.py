@@ -10,8 +10,12 @@ from aiogram.types import (
 
 def main_menu_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="Մասնակցել")]],
+        keyboard=[
+            [KeyboardButton(text="Մասնակցել")],
+            [KeyboardButton(text="Ստուգել մասնակցությունս")],
+        ],
         resize_keyboard=True,
+        input_field_placeholder="Ընտրեք գործողությունը",
     )
 
 
